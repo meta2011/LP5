@@ -1,0 +1,77 @@
+//HPC 3
+#include <iostream>
+#include <omp.h>
+#include <chrono>
+using namespace std::chrono;
+using namespace std;
+
+
+void displayArray(int nums[], int length)
+{
+    cout << "Nums: [";
+    for (int i = 0; i < length; i++) {
+        cout << nums[i];
+        if (i != length - 1)
+            cout << ", ";
+    }
+    cout << "]" << endl;
+}
+
+void minOperation(int nums[], int length)
+{
+    int minValue = nums[0];
+#pragma omp parallel for reduction(min : minValue)
+    for (int i = 0; i < length; i++) {
+        minValue = (nums[i] < minValue) ? nums[i] : minValue;
+    }
+    cout << "Min value: " << minValue << endl;
+}
+
+void maxOperation(int nums[], int length)
+{
+    int maxValue = nums[0];
+    #pragma omp parallel for reduction(max : maxValue)
+    for (int i = 0; i < length; i++) {
+        maxValue = (nums[i] > maxValue) ? nums[i] : maxValue;
+    }
+    cout << "Max value: " << maxValue << endl;
+}
+
+void sumOperation(int nums[], int length)
+{
+    int sum = 0;
+    #pragma omp parallel for reduction(+ : sum)
+    for (int i = 0; i < length; i++) {
+        sum += nums[i];
+    }
+    cout << "Sum: " << sum << endl;
+}
+
+void avgOperation(int nums[], int length)
+{
+    float sum = 0;
+    #pragma omp parallel for reduction(+ : sum)
+    for (int i = 0; i < length; i++) {
+        sum += nums[i];
+    }
+    cout << "Average: " << (sum / length) << endl;
+}
+
+int main()
+{
+    int nums[] = {4, 6, 3, 2, 6, 7, 9, 2, 1, 6, 5};
+    int length = sizeof(nums) / sizeof(int);
+
+    auto start = high_resolution_clock::now();
+
+    displayArray(nums, length);
+    minOperation(nums, length);
+    maxOperation(nums, length);
+    sumOperation(nums, length);
+    avgOperation(nums, length);
+
+    auto stop = high_resolution_clock::now();
+    cout << "\nExecution time: " << duration_cast<microseconds>(stop - start).count() << " microseconds" << endl;
+
+    return 0;
+}
